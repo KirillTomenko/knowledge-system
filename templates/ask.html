@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Вопросы — Знания команды{% endblock %}
+{% block content %}
+{% set active = 'ask' %}
+<header class="content-head">
+  <div>
+    <p class="eyebrow">Раздел 02</p>
+    <h1>Вопросы</h1>
+    <p class="lede">Ответ строится только на найденных фрагментах. Нет источника — честное "данных недостаточно".</p>
+  </div>
+</header>
+
+<section class="panel">
+  <form id="ask-form" class="form-grid">
+    <label>
+      <span>Вопрос</span>
+      <input type="text" name="question" maxlength="1000" required placeholder="Например: как отвечать клиенту на жалобу по срокам?">
+    </label>
+    <button type="submit" class="btn-primary">Спросить</button>
+  </form>
+</section>
+
+<section id="ask-result" class="panel result-panel is-hidden">
+  <div class="result-head">
+    <h2 class="panel-title">Ответ</h2>
+    <span id="review-badge" class="badge is-hidden">Требует проверки</span>
+  </div>
+  <p id="answer-text" class="answer-text"></p>
+  <div id="sources-block">
+    <h3 class="sources-title">Источники</h3>
+    <ul id="sources-list" class="sources-list"></ul>
+  </div>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>initAskScreen();</script>
+{% endblock %}

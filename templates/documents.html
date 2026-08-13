@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Документы — Знания команды{% endblock %}
+{% block content %}
+{% set active = 'documents' %}
+<header class="content-head">
+  <div>
+    <p class="eyebrow">Раздел 01</p>
+    <h1>Документы</h1>
+    <p class="lede">База знаний команды. Каждый документ автоматически режется на фрагменты для поиска.</p>
+  </div>
+</header>
+
+<section class="panel">
+  <h2 class="panel-title">Добавить документ</h2>
+  <form id="doc-form" class="form-grid">
+    <label>
+      <span>Заголовок</span>
+      <input type="text" name="title" maxlength="200" required placeholder="Например: Правила работы команды">
+    </label>
+    <label>
+      <span>Текст (абзацы через пустую строку — так режутся фрагменты)</span>
+      <textarea name="text" rows="8" maxlength="20000" required placeholder="Вставьте текст документа..."></textarea>
+    </label>
+    <button type="submit" class="btn-primary">Добавить в базу</button>
+    <p id="doc-form-status" class="form-status"></p>
+  </form>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Витрина <span class="count-pill">{{ documents|length }}</span></h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Заголовок</th><th>ID</th><th>Добавлен</th><th>Символов</th><th></th></tr>
+    </thead>
+    <tbody id="doc-table-body">
+      {% for d in documents %}
+      <tr>
+        <td>{{ d.title }}</td>
+        <td class="mono muted">{{ d.id }}</td>
+        <td class="mono muted">{{ d.created_at }}</td>
+        <td class="mono muted">{{ d.chars }}</td>
+        <td><a href="#" class="link-open" data-id="{{ d.id }}">Открыть</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="empty-row">Документов пока нет — добавьте первый выше.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<dialog id="doc-dialog">
+  <h3 id="doc-dialog-title"></h3>
+  <pre id="doc-dialog-text" class="doc-preview"></pre>
+  <button class="btn-secondary" onclick="document.getElementById('doc-dialog').close()">Закрыть</button>
+</dialog>
+{% endblock %}
+{% block scripts %}
+<script>initDocumentsScreen();</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Знания команды{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="rail">
+      <div class="brand">
+        <span class="brand-mark">§</span>
+        <span class="brand-name">Знания команды</span>
+      </div>
+      <nav class="nav">
+        <a href="/" class="nav-link {% if active == 'documents' %}is-active{% endif %}">
+          <span class="nav-index">01</span> Документы
+        </a>
+        <a href="/ask" class="nav-link {% if active == 'ask' %}is-active{% endif %}">
+          <span class="nav-index">02</span> Вопросы
+        </a>
+        <a href="/history" class="nav-link {% if active == 'history' %}is-active{% endif %}">
+          <span class="nav-index">03</span> История
+        </a>
+      </nav>
+      <div class="rail-foot">Отвечает только по загруженным источникам.<br>Нет источника — нет ответа.</div>
+    </aside>
+    <main class="content">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+  <script src="/static/app.js"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

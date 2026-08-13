@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}История — Знания команды{% endblock %}
+{% block content %}
+{% set active = 'history' %}
+<header class="content-head">
+  <div>
+    <p class="eyebrow">Раздел 03</p>
+    <h1>История</h1>
+    <p class="lede">Что спрашивали и где система честно призналась в неуверенности.</p>
+  </div>
+  <label class="filter-toggle">
+    <input type="checkbox" id="review-filter">
+    <span>Только "требует проверки"</span>
+  </label>
+</header>
+
+<section class="panel">
+  <h2 class="panel-title">Вопросы и ответы <span class="count-pill">{{ runs|length }}</span></h2>
+  <table class="data-table" id="history-table">
+    <thead>
+      <tr><th>Вопрос</th><th>Когда</th><th>Статус</th><th></th></tr>
+    </thead>
+    <tbody id="history-table-body">
+      {% for r in runs %}
+      <tr class="{% if r.needs_review %}row-flagged{% endif %}">
+        <td>{{ r.question }}</td>
+        <td class="mono muted">{{ r.created_at }}</td>
+        <td>
+          {% if r.needs_review %}
+            <span class="badge">Проверка</span>
+          {% else %}
+            <span class="badge badge-ok">Ок</span>
+          {% endif %}
+        </td>
+        <td><a href="#" class="link-open" data-qa='{{ r|tojson }}'>Открыть</a></td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4" class="empty-row">Вопросов пока не было.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="panel">
+  <h2 class="panel-title">Аудит запусков <span class="count-pill">{{ audit|length }}</span></h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Действие</th><th>Когда</th><th>Статус</th><th>Длительность</th><th>Ошибка</th></tr>
+    </thead>
+    <tbody>
+      {% for a in audit %}
+      <tr class="{% if a.status != 'ok' %}row-flagged{% endif %}">
+        <td class="mono">{{ a.action }}</td>
+        <td class="mono muted">{{ a.created_at }}</td>
+        <td>
+          {% if a.status == 'ok' %}
+            <span class="badge badge-ok">ok</span>
+          {% else %}
+            <span class="badge">error</span>
+          {% endif %}
+        </td>
+        <td class="mono muted">{{ a.duration_ms }} мс</td>
+        <td class="muted">{{ a.error or '—' }}</td>
+      </tr>
+      {% else %}
+      <tr><td colspan="5" class="empty-row">Аудит пуст.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<dialog id="qa-dialog">
+  <h3 id="qa-dialog-question"></h3>
+  <p id="qa-dialog-answer" class="answer-text"></p>
+  <div id="qa-dialog-review" class="badge is-hidden">Требует проверки</div>
+  <h4 class="sources-title">Источники</h4>
+  <ul id="qa-dialog-sources" class="sources-list"></ul>
+  <button class="btn-secondary" onclick="document.getElementById('qa-dialog').close()">Закрыть</button>
+</dialog>
+{% endblock %}
+{% block scripts %}
+<script>initHistoryScreen();</script>
+{% endblock %}
