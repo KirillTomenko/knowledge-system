@@ -2,6 +2,9 @@
 
 [![CI](https://github.com/KirillTomenko/knowledge-system/actions/workflows/ci.yml/badge.svg)](https://github.com/KirillTomenko/knowledge-system/actions/workflows/ci.yml)
 
+**🔗 Живое демо: [knowledge-system-ln80.onrender.com](https://knowledge-system-ln80.onrender.com)**
+_(бесплатный тариф — первый запрос после паузы может занять 30–50 секунд, сервис «просыпается»)_
+
 > **English summary:** A web service that answers questions **only** from
 > uploaded team documents — every answer either cites its source snippet
 > or honestly says "not enough data" instead of guessing. Hybrid search
