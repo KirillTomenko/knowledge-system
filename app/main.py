@@ -8,6 +8,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -18,28 +20,30 @@ from app import database as db
 from app import llm
 from app.search import HybridSearch
 
-app = FastAPI(title="Team Knowledge System")
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
-
 _search = HybridSearch()
-
-
-def _split_into_snippets(text: str):
-    """Simple paragraph split, as explicitly allowed by the spec."""
-    parts = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
-    return parts or [text.strip()]
 
 
 def _reindex_all():
     _search.reindex(db.all_snippets())
 
 
-@app.on_event("startup")
-def on_startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     db.init_db()
     _reindex_all()
+    yield
+
+
+app = FastAPI(title="Team Knowledge System", lifespan=lifespan)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
+
+def _split_into_snippets(text: str):
+    """Simple paragraph split, as explicitly allowed by the spec."""
+    parts = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
+    return parts or [text.strip()]
 
 
 def _audit(action: str, input_data: dict, fn):
@@ -159,18 +163,19 @@ def get_audit(limit: int = 100):
 @app.get("/", response_class=HTMLResponse)
 def screen_documents(request: Request):
     return templates.TemplateResponse(
-        "documents.html", {"request": request, "documents": db.list_documents()}
+        request, "documents.html", {"documents": db.list_documents()}
     )
 
 
 @app.get("/ask", response_class=HTMLResponse)
 def screen_ask(request: Request):
-    return templates.TemplateResponse("ask.html", {"request": request})
+    return templates.TemplateResponse(request, "ask.html", {})
 
 
 @app.get("/history", response_class=HTMLResponse)
 def screen_history(request: Request):
     return templates.TemplateResponse(
+        request,
         "history.html",
-        {"request": request, "runs": db.list_qa_runs(limit=100), "audit": db.list_audit_runs(limit=50)},
+        {"runs": db.list_qa_runs(limit=100), "audit": db.list_audit_runs(limit=50)},
     )

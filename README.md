@@ -1,5 +1,16 @@
 # Знания команды — Team Knowledge System
 
+[![CI](https://github.com/KirillTomenko/knowledge-system/actions/workflows/ci.yml/badge.svg)](https://github.com/KirillTomenko/knowledge-system/actions/workflows/ci.yml)
+
+> **English summary:** A web service that answers questions **only** from
+> uploaded team documents — every answer either cites its source snippet
+> or honestly says "not enough data" instead of guessing. Hybrid search
+> (BM25 keyword + ChromaDB vector), strict-JSON AI operation with a
+> confidence threshold, full request audit trail, and a reproducible
+> Docker setup. Full documentation below is in Russian (built as a course
+> capstone project for a Russian-speaking audience); the code, API, and
+> architecture are language-agnostic.
+
 Веб-сервис, который отвечает на вопросы **только** на основе загруженных
 документов команды, всегда прикладывает цитаты-источники и честно
 говорит «данных недостаточно», когда подходящего фрагмента нет — вместо

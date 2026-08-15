@@ -148,7 +148,7 @@ Pydantic-схемы (защита от переполнения контекст
 
 ## Как запустить
 
-См. `README.md` в репозитории — запуск через `docker compose up --build`
+См. `README.md` в репозитории https://github.com/KirillTomenko/knowledge-system — запуск через `docker compose up --build`
 или локально через venv, ≤ 10 минут.
 
 ## Демонстрация
