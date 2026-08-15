@@ -113,6 +113,14 @@ curl -X POST http://localhost:8000/kb/ask \
   -d '{"question": "Во сколько начинается рабочий день?"}'
 ```
 
+> **Windows / PowerShell:** команды выше написаны в Bash-синтаксисе и не заработают как есть в PowerShell —
+> `curl` там алиас на `Invoke-WebRequest`, а перенос строки через `\` не поддерживается.
+> Рабочий вариант в PowerShell — вызывать `curl.exe` явно, JSON передавать через файл:
+> ```powershell
+> # demo_question.json: {"question": "Во сколько начинается рабочий день?"}
+> curl.exe -X POST http://localhost:8000/kb/ask -H "Content-Type: application/json" --data "@demo_question.json"
+> ```
+
 ## Где лежат данные и аудит
 
 - SQLite-файл: `./data/knowledge.db` (открывается любым SQLite-клиентом, например DB Browser for SQLite).
