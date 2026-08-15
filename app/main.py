@@ -21,15 +21,49 @@ from app import llm
 from app.search import HybridSearch
 
 _search = HybridSearch()
+AUTO_SEED_DEMO_DATA = os.getenv("AUTO_SEED_DEMO_DATA", "true").lower() in ("1", "true", "yes")
 
 
 def _reindex_all():
     _search.reindex(db.all_snippets())
 
 
+def _split_into_snippets(text: str):
+    """Simple paragraph split, as explicitly allowed by the spec."""
+    parts = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
+    return parts or [text.strip()]
+
+
+def _seed_demo_data_if_empty():
+    """Auto-loads the 5 test documents on startup when the knowledge base
+    is empty. Matters most on free hosting tiers (e.g. Render) where the
+    container — and its filesystem, including the SQLite file — resets on
+    every sleep/wake cycle: without this, a demo link can silently point
+    at an empty knowledge base after 15 minutes of inactivity."""
+    if not AUTO_SEED_DEMO_DATA:
+        return
+    if db.list_documents():
+        return  # already has data — never overwrite real content
+
+    seed_path = os.path.join(BASE_DIR, "tests_data", "kb_documents.jsonl")
+    if not os.path.exists(seed_path):
+        return
+
+    with open(seed_path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            doc = json.loads(line)
+            doc_id = db.insert_document(doc["title"], doc["text"])
+            for chunk in _split_into_snippets(doc["text"]):
+                db.insert_snippet(doc_id, chunk)
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     db.init_db()
+    _seed_demo_data_if_empty()
     _reindex_all()
     yield
 
@@ -38,12 +72,6 @@ app = FastAPI(title="Team Knowledge System", lifespan=lifespan)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
-
-
-def _split_into_snippets(text: str):
-    """Simple paragraph split, as explicitly allowed by the spec."""
-    parts = [p.strip() for p in re.split(r"\n\s*\n", text) if p.strip()]
-    return parts or [text.strip()]
 
 
 def _audit(action: str, input_data: dict, fn):
