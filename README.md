@@ -5,6 +5,18 @@
 **🔗 Живое демо: [knowledge-system-ln80.onrender.com](https://knowledge-system-ln80.onrender.com)**
 _(бесплатный тариф — первый запрос после паузы может занять 30–50 секунд, сервис «просыпается»)_
 
+Проверить API живого демо одной командой, без клонирования репозитория:
+```bash
+curl -X POST https://knowledge-system-ln80.onrender.com/kb/ask \
+  -H "Content-Type: application/json" \
+  -d '{"question": "За сколько дней согласовывать отпуск?"}'
+```
+> **Windows / PowerShell:**
+> ```powershell
+> # demo_question.json: {"question": "За сколько дней согласовывать отпуск?"}
+> curl.exe -X POST https://knowledge-system-ln80.onrender.com/kb/ask -H "Content-Type: application/json" --data "@demo_question.json"
+> ```
+
 > **English summary:** A web service that answers questions **only** from
 > uploaded team documents — every answer either cites its source snippet
 > or honestly says "not enough data" instead of guessing. Hybrid search
@@ -18,6 +30,10 @@ _(бесплатный тариф — первый запрос после па�
 документов команды, всегда прикладывает цитаты-источники и честно
 говорит «данных недостаточно», когда подходящего фрагмента нет — вместо
 того, чтобы придумывать ответ.
+
+## Демо-видео
+
+[![Демо-видео Knowledge System](https://img.youtube.com/vi/dYRmMKa5lXM/maxresdefault.jpg)](https://youtu.be/dYRmMKa5lXM)
 
 ## Скриншоты
 
