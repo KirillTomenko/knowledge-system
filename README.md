@@ -35,6 +35,8 @@ curl -X POST https://knowledge-system-ln80.onrender.com/kb/ask \
 
 [![Демо-видео Knowledge System](https://img.youtube.com/vi/dYRmMKa5lXM/maxresdefault.jpg)](https://youtu.be/dYRmMKa5lXM)
 
+🎓 [Защита проекта (5–7 мин)](https://youtu.be/eJigsiDPgWs)
+
 ## Скриншоты
 
 | Ответ с источником | История и аудит |
