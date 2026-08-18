@@ -62,9 +62,10 @@ class HybridSearch:
                     name="kb_snippets", embedding_function=ef
                 )
                 self._chroma_ok = True
-            except Exception:
+            except Exception as e:  
                 # Production behavior: don't crash the app if the vector
                 # backend is misconfigured — fall back to keyword-only.
+                print(f"[Chroma] initialization error: {e}")
                 self._chroma_ok = False
 
     def reindex(self, snippets: List[Dict]) -> None:
@@ -89,7 +90,8 @@ class HybridSearch:
                     documents=[s["snippet_text"] for s in snippets],
                     metadatas=[{"document_id": s["document_id"]} for s in snippets],
                 )
-            except Exception:
+            except Exception as e:
+                print(f"[Chroma] reindex error: {e}")
                 self._chroma_ok = False
 
     def search(self, question: str, top_k: int = None) -> List[Dict]:
@@ -115,7 +117,8 @@ class HybridSearch:
                     query_texts=[question], n_results=min(top_k, len(self._snippets))
                 )
                 vector_ids = result.get("ids", [[]])[0]
-            except Exception:
+            except Exception as e:
+                print(f"[Chroma] search error: {e}")
                 vector_ids = []
 
         # --- merge by reciprocal rank fusion ---
