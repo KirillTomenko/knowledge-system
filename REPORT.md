@@ -153,9 +153,9 @@ Pydantic-схемы (защита от переполнения контекст
 
 ## Демонстрация
 
-Демо-видео (2–4 мин): https://youtu.be/dYRmMKa5lXM
+Демо-видео: https://youtu.be/dYRmMKa5lXM
 
-Защита (5–7 мин): https://youtu.be/eJigsiDPgWs
+Защита: https://youtu.be/eJigsiDPgWs
 
 ## Сложности и как решал(а)
 
