@@ -44,22 +44,34 @@ function initDocumentsScreen() {
   });
 }
 
+function renderStatus(el, needsReview) {
+  if (needsReview) {
+    el.textContent = "🟠 Требует проверки";
+    el.className = "status-line status-review";
+  } else {
+    el.textContent = "🟢 Подтверждено базой знаний";
+    el.className = "status-line status-ok";
+  }
+}
+
 function renderSources(listEl, sources) {
   listEl.innerHTML = "";
   if (!sources || sources.length === 0) {
     const li = document.createElement("li");
-    li.textContent = "Источников нет.";
+    li.className = "source-empty";
+    li.textContent = "Нет подходящих источников.";
     listEl.appendChild(li);
     return;
   }
   sources.forEach((s) => {
     const li = document.createElement("li");
-    const tag = document.createElement("span");
-    tag.className = "source-tag";
-    tag.textContent = "документ: " + s.document_id + " · фрагмент: " + s.snippet_id;
+    const docLine = document.createElement("span");
+    docLine.className = "source-doc";
+    docLine.textContent = "📄 " + (s.document_title || "Документ");
     const quote = document.createElement("span");
+    quote.className = "source-quote";
     quote.textContent = "«" + s.quote + "»";
-    li.appendChild(tag);
+    li.appendChild(docLine);
     li.appendChild(quote);
     listEl.appendChild(li);
   });
@@ -70,7 +82,7 @@ function initAskScreen() {
   if (!form) return;
   const resultPanel = document.getElementById("ask-result");
   const answerText = document.getElementById("answer-text");
-  const reviewBadge = document.getElementById("review-badge");
+  const statusLine = document.getElementById("status-line");
   const sourcesList = document.getElementById("sources-list");
 
   form.addEventListener("submit", async (e) => {
@@ -78,7 +90,8 @@ function initAskScreen() {
     const question = new FormData(form).get("question");
     resultPanel.classList.remove("is-hidden");
     answerText.textContent = "Думаю...";
-    reviewBadge.classList.add("is-hidden");
+    statusLine.textContent = "";
+    statusLine.className = "status-line";
     sourcesList.innerHTML = "";
 
     try {
@@ -89,7 +102,7 @@ function initAskScreen() {
       });
       const data = await res.json();
       answerText.textContent = data.answer;
-      reviewBadge.classList.toggle("is-hidden", !data.needs_review);
+      renderStatus(statusLine, data.needs_review);
       renderSources(sourcesList, data.sources);
     } catch (err) {
       answerText.textContent = "Ошибка запроса: " + err.message;
@@ -133,7 +146,7 @@ function attachQaDialogHandlers() {
       const r = JSON.parse(el.dataset.qa);
       document.getElementById("qa-dialog-question").textContent = r.question;
       document.getElementById("qa-dialog-answer").textContent = r.answer || "";
-      document.getElementById("qa-dialog-review").classList.toggle("is-hidden", !r.needs_review);
+      renderStatus(document.getElementById("qa-dialog-status"), r.needs_review);
       const sources = r.sources_json ? JSON.parse(r.sources_json) : [];
       renderSources(document.getElementById("qa-dialog-sources"), sources);
       document.getElementById("qa-dialog").showModal();

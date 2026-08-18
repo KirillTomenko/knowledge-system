@@ -86,11 +86,12 @@ def answer_with_sources(question: str, snippets: List[Dict]) -> Dict:
 
     # --- enforce the contract regardless of what the model claims ---
     valid_ids = {s["id"] for s in snippets}
-    snippet_to_doc = {s["id"]: s["document_id"] for s in snippets}
+    snippet_lookup = {s["id"]: s for s in snippets}
     sources = [
         {
             "snippet_id": src["snippet_id"],
-            "document_id": snippet_to_doc.get(src["snippet_id"]),
+            "document_id": snippet_lookup[src["snippet_id"]]["document_id"],
+            "document_title": snippet_lookup[src["snippet_id"]].get("document_title", ""),
             "quote": src.get("quote", ""),
         }
         for src in parsed.get("sources", [])
