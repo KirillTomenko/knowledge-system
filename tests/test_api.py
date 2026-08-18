@@ -61,6 +61,27 @@ def test_ask_without_llm_key_fails_safe():
         assert body["sources"] == []
 
 
+def test_llm_failure_is_recorded_in_audit():
+    """An LLM failure must be visible in audit_runs (status="error" with
+    the real cause) — not silently logged as status="ok" just because the
+    HTTP response itself came back safely. Regression test for a real gap
+    found during manual review: the client-safe fallback was masking the
+    underlying failure from the audit trail."""
+    with TestClient(app) as client:
+        client.post(
+            "/kb/documents",
+            json={"title": "Правила", "text": "Рабочий день начинается в 10:00."},
+        )
+        client.post("/kb/ask", json={"question": "Во сколько начинается рабочий день?"})
+
+        audit = client.get("/kb/audit").json()
+        ask_records = [a for a in audit if a["action"] == "ask"]
+        assert ask_records, "no 'ask' entries found in audit_runs"
+        error_records = [a for a in ask_records if a["status"] == "error"]
+        assert error_records, "expected at least one 'ask' audit entry with status=error"
+        assert error_records[0]["error"]  # non-empty real cause, not null
+
+
 def test_audit_and_history_endpoints():
     with TestClient(app) as client:
         client.post("/kb/ask", json={"question": "проверочный вопрос"})

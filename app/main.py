@@ -74,6 +74,18 @@ app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), na
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 
+class _AuditableFailure(Exception):
+    """Raised by an audited fn to report a captured, non-fatal failure —
+    the HTTP response still returns fn's safe fallback payload, but the
+    audit log correctly records status="error" with the real cause,
+    instead of silently logging status="ok" for a request that actually
+    failed internally (e.g. the LLM call erroring out)."""
+
+    def __init__(self, payload, message: str):
+        super().__init__(message)
+        self.payload = payload
+
+
 def _audit(action: str, input_data: dict, fn):
     """Runs fn(), logs the call to audit_runs regardless of outcome,
     and re-raises so FastAPI still returns the right HTTP error."""
@@ -83,6 +95,11 @@ def _audit(action: str, input_data: dict, fn):
     output_data = None
     try:
         output_data = fn()
+        return output_data
+    except _AuditableFailure as exc:
+        status = "error"
+        error = str(exc)
+        output_data = exc.payload
         return output_data
     except Exception as exc:
         status = "error"
@@ -163,11 +180,17 @@ def ask(payload: AskIn):
             needs_review=result["needs_review"],
             error=error or result.get("review_reason"),
         )
-        return {
+        response_payload = {
             "answer": result["answer"],
             "sources": result["sources"],
             "needs_review": result["needs_review"],
         }
+        if error:
+            # LLM genuinely failed — the client still gets a safe 200
+            # response, but audit_runs must record the real failure
+            # instead of silently logging status="ok".
+            raise _AuditableFailure(response_payload, error)
+        return response_payload
 
     return _audit("ask", payload.model_dump(), _run)
 
